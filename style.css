@@ -16,3 +16,15 @@ body {
   background: hsl(0, 0%, 100%);
   color: hsl(0, 0%, 11%);
 }
+
+.show-card {
+  display: flex;
+  flex-direction: column;
+}
+.show-card div {
+  display: flex;
+}
+.show-card div div {
+  display: flex;
+  flex-direction: column;
+}
