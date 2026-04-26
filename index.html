@@ -5,16 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TV Show Listing</title>
     <link rel="stylesheet" href="style.css" />
-    <script src="main.js" defer></script>
+    <script src="main.js" defer type="module"></script>
   </head>
   <body>
     <header>
-      <div id="shows-header" class="shows-header"></div>
-      <div id="episodes-header" class="episodes"></div>
+      <div id="shows-header" class="shows-header hidden">
+        <label for="shows-search">Search shows: </label>
+        <input type="text" id="shows-search" placeholder="Search shows..." />
+      </div>
+      <div id="episodes-header" class="episodes hidden"></div>
     </header>
     <main>
       <section id="shows" class="shows hidden"></section>
       <section id="episodes" class="episodes hidden"></section>
     </main>
+
+    <template id="show-card-template">
+      <div class="show-card">
+        <h1></h1>
+        <div>
+          <img src="" alt="" />
+          <p class="summary" class="show-summary"></p>
+          <div>
+            <p class="rated"><b>Rated: </b><span></span></p>
+            <p class="genres"><b>Genres: </b><span></span></p>
+            <p class="status"><b>Status: </b><span></span></p>
+            <p class="runtime"><b>Runtime: </b><span></span></p>
+          </div>
+        </div>
+      </div>
+    </template>
   </body>
 </html>
