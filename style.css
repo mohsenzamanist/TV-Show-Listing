@@ -28,3 +28,11 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+.show-card:hover {
+  background-color: aquamarine;
+}
+
+.hidden {
+  display: none;
+}

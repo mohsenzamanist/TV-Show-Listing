@@ -15,3 +15,9 @@ export function getShows() {
 
   return fetchOnce(url);
 }
+
+export function getEpisodes(id) {
+  const url = `https://api.tvmaze.com/shows/${id}/episodes`;
+
+  return fetchOnce(url);
+}
