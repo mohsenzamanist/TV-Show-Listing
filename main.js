@@ -3,10 +3,12 @@ import { getEpisodes, getShows } from "./data.js";
 const showsSection = document.getElementById("shows");
 const showsHeader = document.getElementById("shows-header");
 const episodesSection = document.getElementById("episodes");
-const episodeHeader = document.getElementById("episode-header");
+const episodesHeader = document.getElementById("episodes-header");
 const showCardTemplate = document.getElementById("show-card-template");
 const episodeCardTemplate = document.getElementById("episode-card-template");
 const showsSearch = document.getElementById("shows-search");
+const showsDropDown = document.getElementById("shows-drop-down");
+const episodesDropDown = document.getElementById("episodes-drop-down");
 
 const state = { shows: [], episodes: [], searchTerm: "" };
 
@@ -106,36 +108,65 @@ function renderEpisodes() {
     episodeSection.append(errorMessage);
   }
 
-  const episodeCards = filteredEpisodes.map(
-    ({ name, season, number, summary, image }) => {
-      const card = episodeCardTemplate.content.cloneNode(true);
-      const title = card.querySelector("h3");
-      const imageElem = card.querySelector("img");
-      const summaryElem = card.querySelector("p");
+  const episodeCards = filteredEpisodes.map((episode) => {
+    const { name, season, number, summary, image } = episode;
+    const card = episodeCardTemplate.content.cloneNode(true);
+    const title = card.querySelector("h3");
+    const imageElem = card.querySelector("img");
+    const summaryElem = card.querySelector("p");
 
-      title.textContent = redefineEpisodeName(name, season, number);
-      imageElem.src = image.medium;
-      imageElem.alt = title.textContent;
-      summaryElem.innerHTML = summary;
+    title.textContent = redefineEpisodeName(episode);
+    imageElem.src = image.medium;
+    imageElem.alt = title.textContent;
+    summaryElem.innerHTML = summary;
 
-      return card;
-    },
-  );
+    return card;
+  });
 
   episodesSection.append(...episodeCards);
+  populateDropDownMenus();
   showEpisodesSection();
+}
+
+function populateDropDownMenus() {
+  //Shows dropdown menu
+  let options = state.shows.map((show) => {
+    const option = document.createElement("option");
+    option.value = show.id;
+    option.textContent = show.name;
+    return option;
+  });
+  let defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "All shows";
+  showsDropDown.append(defaultOption, ...options);
+
+  // Episodes dropdown menu
+  options = state.episodes.map((episode) => {
+    const option = document.createElement("option");
+    option.value = episode.id;
+    option.textContent = redefineEpisodeName(episode);
+    return option;
+  });
+  defaultOption.textContent = "All episodes";
+  episodesDropDown.append(defaultOption, ...options);
 }
 
 function showShowsSection() {
   showsSection.classList.remove("hidden");
+  showsHeader.classList.remove("hidden");
   episodesSection.classList.add("hidden");
+  episodesHeader.classList.add("hidden");
 }
 function showEpisodesSection() {
   showsSection.classList.add("hidden");
+  showsHeader.classList.add("hidden");
+
   episodesSection.classList.remove("hidden");
+  episodesHeader.classList.remove("hidden");
 }
 
-function redefineEpisodeName(name, season, number) {
+function redefineEpisodeName({ name, season, number }) {
   return `${name} - S${String(season).padStart(2, "0")}E${String(number).padStart(2, "0")}`;
 }
 
