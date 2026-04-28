@@ -7,23 +7,60 @@ const episodesHeader = document.getElementById("episodes-header");
 const showCardTemplate = document.getElementById("show-card-template");
 const episodeCardTemplate = document.getElementById("episode-card-template");
 const showsSearch = document.getElementById("shows-search");
+const episodesSearch = document.getElementById("episodes-search");
 const showsDropDown = document.getElementById("shows-drop-down");
 const episodesDropDown = document.getElementById("episodes-drop-down");
+const backArrow = document.getElementById("back-arrow");
 
-const state = { shows: [], episodes: [], searchTerm: "" };
+const state = {
+  shows: [],
+  episodes: {},
+  showsSearchTerm: "",
+  episodesSearchTerm: "",
+  selectedShowId: undefined,
+};
+
+episodesSearch.addEventListener("input", function (e) {
+  if (!state.selectedShowId) return;
+  const searchTerm = e.target.value.toLowerCase().trim();
+  state.episodesSearchTerm = searchTerm;
+  renderEpisodes();
+});
 
 showsSearch.addEventListener("input", function (e) {
   const searchTerm = e.target.value.toLowerCase().trim();
-  state.searchTerm = searchTerm;
+  state.showsSearchTerm = searchTerm;
   renderShows();
+});
+
+backArrow.addEventListener("click", function () {
+  resetSearchValue();
+  state.selectedShowId = undefined;
+  showShowsSection();
+  renderShows();
+});
+
+showsSection.addEventListener("click", async function (e) {
+  const clickedCard = e.target.closest(".show-card");
+  if (!clickedCard) return;
+  state.selectedShowId = clickedCard.dataset.id;
+
+  if (!state.episodes[state.selectedShowId]) {
+    const allEpisodes = await getEpisodes(state.selectedShowId);
+    state.episodes[state.selectedShowId] = checkForArray(allEpisodes);
+  }
+
+  renderEpisodes();
 });
 
 async function setup() {
   try {
-    const allShows = await getShows();
+    if (state.shows.length === 0) {
+      const allShows = await getShows();
 
-    state.shows = checkForArray(allShows);
-    state.shows.sort((a, b) => a.name.localeCompare(b.name));
+      state.shows = checkForArray(allShows);
+      state.shows.sort((a, b) => a.name.localeCompare(b.name));
+    }
 
     renderShows();
   } catch (error) {
@@ -32,7 +69,7 @@ async function setup() {
   }
 }
 
-function search() {
+function search(list, searchTerm) {
   return list.filter((item) => {
     const name = item.name?.toLowerCase() ?? "";
     const summary = item.summary?.toLowerCase() ?? "";
@@ -48,11 +85,15 @@ function search() {
 
 function renderShows() {
   showsSection.innerHTML = "";
-  const { shows, searchTerm } = state;
-  const filteredShows = searchTerm ? search(shows) : shows;
+
+  const { shows, showsSearchTerm } = state;
+  const filteredShows = showsSearchTerm
+    ? search(shows, showsSearchTerm)
+    : shows;
+
   if (filteredShows.length === 0) {
     const errorMessage = document.createElement("p");
-    errorMessage.textContent = searchTerm
+    errorMessage.textContent = showsSearchTerm
       ? "No matching shows to display."
       : "No shows available";
     showsSection.append(errorMessage);
@@ -83,29 +124,26 @@ function renderShows() {
     return card;
   });
   showsSection.append(...showCards);
-  showShowsSection();
-  showsSection.addEventListener("click", async function (e) {
-    const clickedCard = e.target.closest(".show-card");
-    if (!clickedCard) return;
-    const allEpisodes = await getEpisodes(clickedCard.dataset.id);
 
-    state.episodes = checkForArray(allEpisodes);
-    renderEpisodes();
-  });
+  showShowsSection();
 }
 
 function renderEpisodes() {
   episodesSection.innerHTML = "";
-  const { episodes, searchTerm } = state;
-  // searchTerm = "";
 
-  const filteredEpisodes = searchTerm ? search(episodes) : episodes;
+  const { episodesSearchTerm } = state;
+  const episodes = state.episodes[state.selectedShowId] ?? [];
+
+  const filteredEpisodes = episodesSearchTerm
+    ? search(episodes, episodesSearchTerm)
+    : episodes;
   if (filteredEpisodes.length === 0) {
     const errorMessage = document.createElement("p");
-    errorMessage.textContent = searchTerm
+    errorMessage.textContent = episodesSearchTerm
       ? "no matching episode."
       : "no episodes to display";
-    episodeSection.append(errorMessage);
+    episodesSection.append(errorMessage);
+    return;
   }
 
   const episodeCards = filteredEpisodes.map((episode) => {
@@ -116,7 +154,7 @@ function renderEpisodes() {
     const summaryElem = card.querySelector("p");
 
     title.textContent = redefineEpisodeName(episode);
-    imageElem.src = image.medium;
+    imageElem.src = image?.medium ?? `./assets/404.png`;
     imageElem.alt = title.textContent;
     summaryElem.innerHTML = summary;
 
@@ -128,28 +166,48 @@ function renderEpisodes() {
   showEpisodesSection();
 }
 
+function resetSearchValue() {
+  episodesSearch.value = "";
+  showsSearch.value = "";
+  state.episodesSearchTerm = "";
+  state.showsSearchTerm = "";
+}
+
 function populateDropDownMenus() {
+  showsDropDown.innerHTML = "";
+  episodesDropDown.innerHTML = "";
+
   //Shows dropdown menu
-  let options = state.shows.map((show) => {
+  const showsOptions = state.shows.map((show) => {
     const option = document.createElement("option");
     option.value = show.id;
     option.textContent = show.name;
     return option;
   });
-  let defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = "All shows";
-  showsDropDown.append(defaultOption, ...options);
+  const defaultShowsOption = document.createElement("option");
+  defaultShowsOption.value = "";
+  defaultShowsOption.textContent = "All shows";
+  showsDropDown.append(defaultShowsOption, ...showsOptions);
+  if (state.selectedShowId) {
+    const selectedOption = showsDropDown.querySelector(
+      `option[value="${state.selectedShowId}"]`,
+    );
+    if (selectedOption) selectedOption.selected = true;
+  }
 
   // Episodes dropdown menu
-  options = state.episodes.map((episode) => {
+  const episodes = state.episodes[state.selectedShowId] ?? [];
+  const defaultEpisodeOption = document.createElement("option");
+
+  const episodesOptions = episodes.map((episode) => {
     const option = document.createElement("option");
     option.value = episode.id;
     option.textContent = redefineEpisodeName(episode);
     return option;
   });
-  defaultOption.textContent = "All episodes";
-  episodesDropDown.append(defaultOption, ...options);
+  defaultEpisodeOption.value = "";
+  defaultEpisodeOption.textContent = "All episodes";
+  episodesDropDown.append(defaultEpisodeOption, ...episodesOptions);
 }
 
 function showShowsSection() {
