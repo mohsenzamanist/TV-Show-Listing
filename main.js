@@ -115,6 +115,8 @@ function renderShows() {
     ? search(shows, showsSearchTerm)
     : shows;
 
+  numberOfShows.textContent = `Displaying ${filteredShows.length}/${shows.length} shows`;
+
   if (filteredShows.length === 0) {
     const errorMessage = document.createElement("p");
     errorMessage.textContent = showsSearchTerm
