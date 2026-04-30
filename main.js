@@ -136,12 +136,14 @@ function renderShows() {
     const statusSpan = card.querySelector(".status span");
 
     showCardDiv.dataset.id = show.id;
-    title.textContent = show.name ?? "N/A";
+    title.innerHTML = highlightSearchTerm(show.name, showsSearchTerm) ?? "N/A";
     image.src = show.image?.medium || "./assets/404.png";
     image.alt = show.name ?? "Show image";
-    summary.innerHTML = show.summary ?? "N/A";
+    summary.innerHTML =
+      highlightSearchTerm(show.summary, showsSearchTerm) ?? "N/A";
     ratedSpan.textContent = show.rating?.average ?? "N/A";
-    genres.textContent = show.genres?.join(" | ") ?? "N/A";
+    genres.innerHTML =
+      highlightSearchTerm(show.genres?.join(" | "), showsSearchTerm) ?? "N/A";
     statusSpan.textContent = show.status ?? "N/A";
     runtimeSpan.textContent = show.runtime ?? "N/A";
 
@@ -179,10 +181,13 @@ function renderEpisodes() {
     const imageElem = card.querySelector("img");
     const summaryElem = card.querySelector("p");
 
-    title.textContent = redefineEpisodeName(episode);
+    title.innerHTML = highlightSearchTerm(
+      redefineEpisodeName(episode),
+      episodesSearchTerm,
+    );
     imageElem.src = image?.medium ?? `./assets/404.png`;
     imageElem.alt = title.textContent;
-    summaryElem.innerHTML = summary;
+    summaryElem.innerHTML = highlightSearchTerm(summary, episodesSearchTerm);
 
     return card;
   });
@@ -291,6 +296,12 @@ function redefineEpisodeName({ name, season, number }) {
 
 function checkForArray(list) {
   return Array.isArray(list) ? list : [];
+}
+
+function highlightSearchTerm(text, searchTerm) {
+  if (!searchTerm) return text;
+  const regex = new RegExp(searchTerm, "gi");
+  return text.replace(regex, "<mark>$&</mark>");
 }
 
 document.addEventListener("DOMContentLoaded", setup);
