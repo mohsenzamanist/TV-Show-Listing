@@ -14,7 +14,7 @@
         <input type="text" id="shows-search" placeholder="Search shows..." />
         <p id="number-of-shows" class="number-of-shows"></p>
       </div>
-      <div id="episodes-header" class="episodes hidden">
+      <div id="episodes-header" class="episodes-header hidden">
         <span id="back-arrow" class="back-arrow">&leftarrow;back</span>
         <select id="shows-drop-down" class="shows-drop-down"></select>
         <select id="episodes-drop-down" class="episodes-drop-down"></select>
@@ -35,10 +35,10 @@
     <template id="show-card-template">
       <div class="show-card">
         <h1></h1>
-        <div>
+        <div class="show-content">
           <img src="" alt="" />
           <p class="summary" class="show-summary"></p>
-          <div>
+          <div class="show-info">
             <p class="rated"><b>Rated: </b><span></span></p>
             <p class="genres"><b>Genres: </b><span></span></p>
             <p class="status"><b>Status: </b><span></span></p>
@@ -50,9 +50,11 @@
     <template id="episode-card-template">
       <section class="episode-card">
         <h3></h3>
-        <img src="" alt="" />
-        <p></p>
-        <a href="" target="_blank">View on TVMaze</a>
+        <div class="episode-info">
+          <img src="" alt="" />
+          <p></p>
+          <a href="" target="_blank">View on TVMaze</a>
+        </div>
       </section>
     </template>
   </body>

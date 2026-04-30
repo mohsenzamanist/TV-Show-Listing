@@ -17,16 +17,59 @@ body {
   color: hsl(0, 0%, 11%);
 }
 
+.shows-header,
+.episodes-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+.back-arrow {
+  cursor: pointer;
+  color: red;
+}
+.back-arrow:hover {
+  color: blue;
+}
+
+.shows,
+.episodes {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0 1rem;
+}
+
 .show-card {
+  width: 100%;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
-.show-card div {
+.show-content {
   display: flex;
+  gap: 1rem;
+  align-items: flex-start;
 }
-.show-card div div {
+
+.show-content img {
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.summary {
+  flex: 2;
+}
+
+.show-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  padding: 1rem;
 }
 
 .show-card:hover {
@@ -35,4 +78,14 @@ body {
 
 .hidden {
   display: none;
+}
+
+.episode-card {
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+}
+
+.episode-info {
+  display: flex;
+  gap: 1rem;
 }
