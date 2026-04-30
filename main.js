@@ -66,6 +66,15 @@ showsDropDown.addEventListener("change", async function (e) {
   }
 });
 
+episodesDropDown.addEventListener("change", function (e) {
+  const episodeId = e.target.value;
+  if (!episodeId) {
+    renderEpisodes();
+    return;
+  }
+  renderSelectedEpisode(episodeId);
+});
+
 async function setup() {
   try {
     if (state.shows.length === 0) {
@@ -178,6 +187,29 @@ function renderEpisodes() {
   populateShowsDropDownMenu();
   populateEpisodesDropDownMenu();
   showEpisodesSection();
+}
+
+function renderSelectedEpisode(id) {
+  const episode = state.episodes[state.selectedShowId]?.find(
+    (e) => e.id === Number.parseInt(id),
+  );
+
+  const { image, summary } = episode;
+
+  episodesSection.innerHTML = "";
+  resetSearchValue();
+
+  const card = episodeCardTemplate.content.cloneNode(true);
+  const title = card.querySelector("h3");
+  const imageElem = card.querySelector("img");
+  const summaryElem = card.querySelector("p");
+
+  title.textContent = redefineEpisodeName(episode);
+  imageElem.src = image?.medium ?? `./assets/404.png`;
+  imageElem.alt = title.textContent;
+  summaryElem.innerHTML = summary;
+
+  episodesSection.appendChild(card);
 }
 
 async function ensureEpisodesLoaded(showId) {
