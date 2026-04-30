@@ -43,12 +43,23 @@ backArrow.addEventListener("click", function () {
 showsSection.addEventListener("click", async function (e) {
   const clickedCard = e.target.closest(".show-card");
   if (!clickedCard) return;
-  state.selectedShowId = clickedCard.dataset.id;
+  const showId = clickedCard.dataset.id;
 
-  if (!state.episodes[state.selectedShowId]) {
-    const allEpisodes = await getEpisodes(state.selectedShowId);
-    state.episodes[state.selectedShowId] = checkForArray(allEpisodes);
-  }
+  await ensureEpisodesLoaded(showId);
+
+  state.selectedShowId = showId;
+
+  renderEpisodes();
+});
+
+showsDropDown.addEventListener("change", async function (e) {
+  const showId = e.target.value;
+  if (!showId) return;
+
+  await ensureEpisodesLoaded(showId);
+  state.selectedShowId = showId;
+
+  resetSearchValue();
 
   renderEpisodes();
 });
@@ -166,6 +177,13 @@ function renderEpisodes() {
   showEpisodesSection();
 }
 
+async function ensureEpisodesLoaded(showId) {
+  if (!state.episodes[showId]) {
+    const allEpisodes = await getEpisodes(showId);
+    state.episodes[showId] = checkForArray(allEpisodes);
+  }
+}
+
 function resetSearchValue() {
   episodesSearch.value = "";
   showsSearch.value = "";
@@ -184,10 +202,8 @@ function populateDropDownMenus() {
     option.textContent = show.name;
     return option;
   });
-  const defaultShowsOption = document.createElement("option");
-  defaultShowsOption.value = "";
-  defaultShowsOption.textContent = "All shows";
-  showsDropDown.append(defaultShowsOption, ...showsOptions);
+
+  showsDropDown.append(...showsOptions);
   if (state.selectedShowId) {
     const selectedOption = showsDropDown.querySelector(
       `option[value="${state.selectedShowId}"]`,
