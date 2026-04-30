@@ -45,23 +45,25 @@ showsSection.addEventListener("click", async function (e) {
   if (!clickedCard) return;
   const showId = clickedCard.dataset.id;
 
+  state.selectedShowId = showId;
   await ensureEpisodesLoaded(showId);
 
-  state.selectedShowId = showId;
-
-  renderEpisodes();
+  if (state.selectedShowId === showId) renderEpisodes();
 });
 
 showsDropDown.addEventListener("change", async function (e) {
   const showId = e.target.value;
   if (!showId) return;
 
-  await ensureEpisodesLoaded(showId);
   state.selectedShowId = showId;
+  await ensureEpisodesLoaded(showId);
 
   resetSearchValue();
 
-  renderEpisodes();
+  if (state.selectedShowId === showId) {
+    populateEpisodesDropDownMenu();
+    renderEpisodes();
+  }
 });
 
 async function setup() {
@@ -173,7 +175,8 @@ function renderEpisodes() {
   });
 
   episodesSection.append(...episodeCards);
-  populateDropDownMenus();
+  populateShowsDropDownMenu();
+  populateEpisodesDropDownMenu();
   showEpisodesSection();
 }
 
@@ -191,11 +194,9 @@ function resetSearchValue() {
   state.showsSearchTerm = "";
 }
 
-function populateDropDownMenus() {
+function populateShowsDropDownMenu() {
   showsDropDown.innerHTML = "";
-  episodesDropDown.innerHTML = "";
 
-  //Shows dropdown menu
   const showsOptions = state.shows.map((show) => {
     const option = document.createElement("option");
     option.value = show.id;
@@ -210,8 +211,11 @@ function populateDropDownMenus() {
     );
     if (selectedOption) selectedOption.selected = true;
   }
+}
 
-  // Episodes dropdown menu
+function populateEpisodesDropDownMenu() {
+  episodesDropDown.innerHTML = "";
+
   const episodes = state.episodes[state.selectedShowId] ?? [];
   const defaultEpisodeOption = document.createElement("option");
 
