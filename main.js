@@ -22,18 +22,24 @@ const state = {
   selectedShowId: undefined,
 };
 
-episodesSearch.addEventListener("input", function (e) {
+const handleEpisodesSearch = debounce(function (e) {
   if (!state.selectedShowId) return;
   const searchTerm = e.target.value.toLowerCase().trim();
   state.episodesSearchTerm = searchTerm;
   renderEpisodes();
-});
+}, 500);
 
-showsSearch.addEventListener("input", function (e) {
+episodesSearch.addEventListener("input", handleEpisodesSearch);
+
+const handleShowsSearch = debounce(function (e) {
   const searchTerm = e.target.value.toLowerCase().trim();
+
   state.showsSearchTerm = searchTerm;
+
   renderShows();
-});
+}, 500);
+
+showsSearch.addEventListener("input", handleShowsSearch);
 
 backArrow.addEventListener("click", function () {
   resetSearchValue();
@@ -306,4 +312,15 @@ function highlightSearchTerm(text, searchTerm) {
   return text.replace(regex, "<mark>$&</mark>");
 }
 
+function debounce(callback, delay) {
+  let timeoutId;
+
+  return function (...args) {
+    clearTimeout(timeoutId);
+
+    timeoutId = setTimeout(() => {
+      callback(...args);
+    }, delay);
+  };
+}
 document.addEventListener("DOMContentLoaded", setup);
