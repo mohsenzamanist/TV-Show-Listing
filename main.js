@@ -11,6 +11,8 @@ const episodesSearch = document.getElementById("episodes-search");
 const showsDropDown = document.getElementById("shows-drop-down");
 const episodesDropDown = document.getElementById("episodes-drop-down");
 const backArrow = document.getElementById("back-arrow");
+const numberOfEpisodes = document.getElementById("number-of-episodes");
+const numberOfShows = document.getElementById("number-of-shows");
 
 const state = {
   shows: [],
@@ -61,7 +63,6 @@ showsDropDown.addEventListener("change", async function (e) {
   resetSearchValue();
 
   if (state.selectedShowId === showId) {
-    populateEpisodesDropDownMenu();
     renderEpisodes();
   }
 });
@@ -83,6 +84,7 @@ async function setup() {
       state.shows = checkForArray(allShows);
       state.shows.sort((a, b) => a.name.localeCompare(b.name));
     }
+    populateShowsDropDownMenu();
 
     renderShows();
   } catch (error) {
@@ -152,19 +154,21 @@ function renderShows() {
 
 function renderEpisodes() {
   episodesSection.innerHTML = "";
-
+  showsDropDown.value = state.selectedShowId ?? "";
   const { episodesSearchTerm } = state;
   const episodes = state.episodes[state.selectedShowId] ?? [];
 
   const filteredEpisodes = episodesSearchTerm
     ? search(episodes, episodesSearchTerm)
     : episodes;
+  numberOfEpisodes.textContent = `Displaying ${filteredEpisodes.length}/${episodes.length} episodes.`;
   if (filteredEpisodes.length === 0) {
     const errorMessage = document.createElement("p");
     errorMessage.textContent = episodesSearchTerm
       ? "no matching episode."
       : "no episodes to display";
     episodesSection.append(errorMessage);
+
     return;
   }
 
@@ -184,15 +188,16 @@ function renderEpisodes() {
   });
 
   episodesSection.append(...episodeCards);
-  populateShowsDropDownMenu();
   populateEpisodesDropDownMenu();
+
   showEpisodesSection();
 }
 
 function renderSelectedEpisode(id) {
   const episode = state.episodes[state.selectedShowId]?.find(
-    (e) => e.id === Number.parseInt(id),
+    (e) => e.id === Number(id),
   );
+  if (!episode) return;
 
   const { image, summary } = episode;
 
@@ -210,6 +215,7 @@ function renderSelectedEpisode(id) {
   summaryElem.innerHTML = summary;
 
   episodesSection.appendChild(card);
+  numberOfEpisodes.textContent = `Displaying 1/${state.episodes[state.selectedShowId].length} episodes.`;
 }
 
 async function ensureEpisodesLoaded(showId) {
@@ -235,8 +241,11 @@ function populateShowsDropDownMenu() {
     option.textContent = show.name;
     return option;
   });
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Select a show";
 
-  showsDropDown.append(...showsOptions);
+  showsDropDown.append(defaultOption, ...showsOptions);
   if (state.selectedShowId) {
     const selectedOption = showsDropDown.querySelector(
       `option[value="${state.selectedShowId}"]`,
